@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WA Badak - Client</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f2f4ff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+    .card{background:#fff;padding:22px;border-radius:14px;box-shadow:0 12px 30px rgba(40,40,80,0.08);width:360px;text-align:center}
+    input{width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin:8px 0}
+    button{padding:12px 16px;border-radius:10px;border:none;background:linear-gradient(90deg,#ff2ad0,#4b00ff);color:#fff;font-weight:700;cursor:pointer;width:100%}
+    .info{font-size:13px;color:#666;margin-top:8px}
+    .out{margin-top:12px;padding:10px;border-radius:8px;background:#f7f7fb;color:#1b2a6b;font-weight:700;display:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h3>WA Badak</h3>
+    <input id="number" placeholder="Masukkan nomor (contoh: 628123456789)" />
+    <button id="go">Mulai Badak</button>
+    <div class="info">beta test.</div>
+    <div id="out" class="out"></div>
+  </div>
+
+  <script>
+    const BACKEND_BASE = 'http://localhost:3000'; // ubah jika backend dijalankan di alamat lain
+    const btn = document.getElementById('go');
+    const out = document.getElementById('out');
+
+    async function postBadak(number) {
+      try {
+        out.style.display = 'block';
+        out.textContent = 'Mengirim permintaan...';
+        const r = await fetch(BACKEND_BASE + '/badak', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ number })
+        });
+        const j = await r.json();
+        if (!r.ok) {
+          out.textContent = 'Gagal: ' + (j.error || JSON.stringify(j));
+          return;
+        }
+        out.textContent = 'Sukses: ' + (j.status || 'OK');
+        console.log('response', j);
+      } catch (err) {
+        out.style.display = 'block';
+        out.textContent = 'Error: ' + err.message;
+      }
+    }
+
+    btn.addEventListener('click', () => {
+      const num = document.getElementById('number').value.trim();
+      if (!/^62\d{6,}$/.test(num)) {
+        out.style.display = 'block';
+        out.textContent = 'Masukkan nomor valid mulai 62...';
+        return;
+      }
+      postBadak(num);
+    });
+  </script>
+</body>
+</html>
